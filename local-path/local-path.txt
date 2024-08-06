@@ -1,0 +1,15 @@
+https://github.com/rancher/local-path-provisioner
+
+kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.28/deploy/local-path-storage.yaml
+
+ubuntu@eck-m1:~/pulsar$ kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.28/deploy/local-path-storage.yaml
+namespace/local-path-storage created
+serviceaccount/local-path-provisioner-service-account created
+role.rbac.authorization.k8s.io/local-path-provisioner-role created
+clusterrole.rbac.authorization.k8s.io/local-path-provisioner-role created
+rolebinding.rbac.authorization.k8s.io/local-path-provisioner-bind created
+clusterrolebinding.rbac.authorization.k8s.io/local-path-provisioner-bind created
+deployment.apps/local-path-provisioner created
+storageclass.storage.k8s.io/local-path created
+configmap/local-path-config created
+

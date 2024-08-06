@@ -1,0 +1,59 @@
+apiVersion: logstash.k8s.elastic.co/v1alpha1
+kind: Logstash
+metadata:
+  name: logstash
+  namespace: elastic-system
+spec:
+  count: 1
+  podTemplate:
+    spec:
+      containers:
+        - name: logstash
+          env:
+            - name: LS_JAVA_OPTS
+              value: "-Xmx2g -Xms2g"
+  volumeClaimTemplates:
+  - metadata:
+      name: logstash-data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: local-path
+  elasticsearchRefs:
+    - name: escluster
+      clusterName: escluster
+  version: 8.14.2
+  pipelines:
+    - pipeline.id: main
+      config.string: |
+        input {
+          beats {
+            port => 5044
+          }
+          beats {
+            port => 5045
+          }
+        }
+        output {
+          elasticsearch {
+            hosts => [ "${ESCLUSTER_ES_HOSTS}" ]
+            index => "%{[fields][document_type]}-%{+yyyy.MM.dd}"
+            ilm_enabled => false
+            user => "${ESCLUSTER_ES_USER}"
+            password => "${ESCLUSTER_ES_PASSWORD}"
+            ssl_certificate_authorities => "${ESCLUSTER_ES_SSL_CERTIFICATE_AUTHORITY}"
+          }
+        }
+  services:
+    - name: beats
+      service:
+        spec:
+          type: NodePort
+          ports:
+            - port: 5044
+              name: "filebeat"
+              protocol: TCP
+              targetPort: 5044
